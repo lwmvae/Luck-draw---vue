@@ -5,15 +5,13 @@
         <div class="head clearFix">
           <div class="head-left clearFix">
             <span>抽取奖项:</span>
-            <i>三等奖</i>
-            <ul>
-              <li data-id="1">一等奖</li>
-              <li data-id="2">二等奖</li>
-              <li data-id="3">三等奖</li>
+            <i :data-id="prize[index-1].id" ref="getIndex">{{prize[index-1].name}}</i>
+            <ul @click="choice">
+              <li v-for="item in prize" :data-id="item.id">{{item.name}}</li>
             </ul>
           </div>
           <div class="head-right">
-            <p>名额:<span class="already">0</span>/<span class="total">5</span></p>
+            <p>名额:<span class="already" ref="already">{{priseInfo[index-1].length}}</span>/<span class="total" ref="total">{{prize[index-1].num}}</span></p>
           </div>
         </div>
         <div class="list">
@@ -36,9 +34,9 @@
             <p>一等奖</p>
             <img src="../../assets/img/aside.png">
           </div>
-          <h3>虚位以待……</h3>
-          <ul class="win-list">
-            <!-- <li><img src="img/1.jpg"><span>张三</span><i>X</i></li> -->
+          <h3 v-show="!priseInfo[0].length">虚位以待……</h3>
+          <ul class="win-list" v-show="priseInfo[0].length">
+            <li v-for="item in priseInfo[0]"><img :src="item.headImg"><span>{{item.name}}</span><i>X</i></li>
           </ul>
         </div>
         <div class="second">
@@ -46,8 +44,9 @@
             <p>二等奖</p>
             <img src="../../assets/img/aside.png">
           </div>
-          <h3>虚位以待……</h3>
-          <ul class="win-list">
+          <h3 v-show="!priseInfo[1].length">虚位以待……</h3>
+          <ul class="win-list" v-show="priseInfo[1].length">
+            <li v-for="item in priseInfo[1]"><img :src="item.headImg"><span>{{item.name}}</span><i>X</i></li>
           </ul>
         </div>
         <div class="third">
@@ -55,23 +54,35 @@
             <p>三等奖</p>
             <img src="../../assets/img/aside.png">
           </div>
-          <h3>虚位以待……</h3>
-          <ul class="win-list">
+          <h3 v-show="!priseInfo[2].length">虚位以待……</h3>
+          <ul class="win-list" v-show="priseInfo[2].length">
+            <li v-for="item in priseInfo[2]"><img :src="item.headImg"><span>{{item.name}}</span><i>X</i></li>
           </ul>
         </div>
       </div>
     </div>
+    <pop-box v-show="popShow" :info="info" :index="index" @closePopBox="close"></pop-box>
   </div>
 </template>
 <script>
 import { getMeeting } from 'api/meeting'
+import popBox from 'components/popBox/popBox'
 let timer, theta, imageIndex = 0
 export default {
   data() {
     return {
       meeting: [],
       startShow: true,
-      addClass:false
+      addClass: false,
+      popShow: false,
+      info: {},
+      index: 3,
+      priseInfo: [
+        [],
+        [],
+        []
+      ],
+      prize: [{ "name": "一等奖", "id": 1, "num": 1 }, { "name": "二等奖", "id": 2, "num": 2 }, { "name": "三等奖", "id": 3, "num": 5 }]
     }
   },
   methods: {
@@ -84,8 +95,21 @@ export default {
     end() {
       this.startShow = !this.startShow
       clearInterval(timer)
-      
-
+      this.info = this.meeting[this.getNum(imageIndex)]
+      setTimeout(() => {
+        this.popShow = !this.popShow
+      }, 500)
+    },
+    close(data) {
+      this.addClass = !this.addClass
+      this.popShow = !this.popShow
+      this.resetCss()
+      if (data == 1) {
+        this.priseInfo[this.index - 1].push(this.info)
+      }
+    },
+    choice(e) {
+      this.index = e.target.getAttribute("data-id");
     },
     setUpCarousel(s) {
       const getListWrapper = this.$refs.listWrapper
@@ -107,7 +131,7 @@ export default {
       const getImg = getListWrapper.children
       getListWrapper.style.transform = 'rotateY(0)'
       getListWrapper.style.transformOrigin = '0 0 0'
-      for (let i = 0, n=getImg.length; i < n; i++) {
+      for (let i = 0, n = getImg.length; i < n; i++) {
         getImg[i].style.transform = 'rotateY(0)'
         getImg[i].style.transformOrigin = '0 0 0'
         getImg[i].style.padding = '0'
@@ -125,6 +149,9 @@ export default {
     rotateCarousel(imageIndex, theta) {
       this.$refs.listWrapper.style.transform = 'rotateY(' + imageIndex * -theta + 'rad)'
     },
+    getNum(imageIndex) {
+      return imageIndex % this.$refs.listWrapper.children.length
+    },
     _getMeeting() {
       getMeeting().then((res) => {
         if (res.code === 0) {
@@ -133,8 +160,18 @@ export default {
       })
     }
   },
+  watch: {
+    showBtn(curVal, oldVal) {
+      console.log(curVal, oldVal);
+      // console.log(this.$refs.already)
+      // return this.$refs.already.innerHTML == this.$refs.total.innerHTML ? 'false' : 'true'
+    }
+  },
   created() {
     this._getMeeting()
+  },
+  components: {
+    popBox
   }
 }
 
