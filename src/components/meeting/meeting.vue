@@ -22,9 +22,13 @@
             <img src="../../assets/img/winner.png">
           </div>
         </div>
-        <div class="button">
-          <button @click="start" v-show="startShow">开始抽奖</button>
-          <button @click="end" v-show="!startShow">停止</button>
+        <div class="button" v-show="showBtn">
+          <transition name="start">
+            <button @click="start" v-show="startShow">开始抽奖</button>
+          </transition>
+          <transition name="start"> 
+            <button @click="end" v-if="!startShow">停止</button>
+          </transition>
         </div>
       </div>
       <div class="right">
@@ -36,7 +40,7 @@
           </div>
           <h3 v-show="!priseInfo[0].length">虚位以待……</h3>
           <ul class="win-list" v-show="priseInfo[0].length">
-            <li v-for="item in priseInfo[0]"><img :src="item.headImg"><span>{{item.name}}</span><i>X</i></li>
+            <li v-for="(item,index) in priseInfo[0]"><img :src="item.headImg"><span>{{item.name}}</span><i @click="del(0,index)">X</i></li>
           </ul>
         </div>
         <div class="second">
@@ -46,7 +50,7 @@
           </div>
           <h3 v-show="!priseInfo[1].length">虚位以待……</h3>
           <ul class="win-list" v-show="priseInfo[1].length">
-            <li v-for="item in priseInfo[1]"><img :src="item.headImg"><span>{{item.name}}</span><i>X</i></li>
+            <li v-for="(item,index) in priseInfo[1]"><img :src="item.headImg"><span>{{item.name}}</span><i @click="del(1,index)">X</i></li>
           </ul>
         </div>
         <div class="third">
@@ -56,7 +60,7 @@
           </div>
           <h3 v-show="!priseInfo[2].length">虚位以待……</h3>
           <ul class="win-list" v-show="priseInfo[2].length">
-            <li v-for="item in priseInfo[2]"><img :src="item.headImg"><span>{{item.name}}</span><i>X</i></li>
+            <li v-for="(item,index) in priseInfo[2]"><img :src="item.headImg"><span>{{item.name}}</span><i @click="del(2,index)">X</i></li>
           </ul>
         </div>
       </div>
@@ -72,6 +76,7 @@ export default {
   data() {
     return {
       meeting: [],
+      showBtn: true,
       startShow: true,
       addClass: false,
       popShow: false,
@@ -86,6 +91,9 @@ export default {
     }
   },
   methods: {
+    del(num,index){
+      this.priseInfo[num].splice(index,1)
+    },
     start() {
       this.startShow = !this.startShow
       this.addClass = !this.addClass
@@ -106,10 +114,19 @@ export default {
       this.resetCss()
       if (data == 1) {
         this.priseInfo[this.index - 1].push(this.info)
+        this.showBtnOrNot();
       }
     },
     choice(e) {
       this.index = e.target.getAttribute("data-id");
+      this.showBtnOrNot();
+    },
+    showBtnOrNot() {
+      if (this.priseInfo[this.index - 1].length == this.prize[this.index - 1].num) {
+        this.showBtn = false;
+      } else {
+        this.showBtn = true;
+      }
     },
     setUpCarousel(s) {
       const getListWrapper = this.$refs.listWrapper
@@ -161,11 +178,7 @@ export default {
     }
   },
   watch: {
-    showBtn(curVal, oldVal) {
-      console.log(curVal, oldVal);
-      // console.log(this.$refs.already)
-      // return this.$refs.already.innerHTML == this.$refs.total.innerHTML ? 'false' : 'true'
-    }
+
   },
   created() {
     this._getMeeting()

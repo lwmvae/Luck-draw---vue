@@ -126,9 +126,13 @@
   top: -8px;
 }
 .button {
-  text-align: center;
+  height: 42px;
+  position: relative;
 }
 .button button {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   outline: none;
   border: none;
   width: 160px;
@@ -140,6 +144,14 @@
   font-weight: bold;
   border-radius: 4px;
   cursor: pointer;
+}
+.button .start-enter-active,
+.button .start-leave-active {
+  transition: all 1s;
+}
+.button .start-enter,
+.button .start-leave-to {
+  opacity: 0;
 }
 .right {
   width: 240px;
