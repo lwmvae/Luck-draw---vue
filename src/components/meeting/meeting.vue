@@ -26,7 +26,7 @@
           <transition name="start">
             <button @click="start" v-show="startShow">开始抽奖</button>
           </transition>
-          <transition name="start"> 
+          <transition name="start">
             <button @click="end" v-if="!startShow">停止</button>
           </transition>
         </div>
@@ -91,8 +91,9 @@ export default {
     }
   },
   methods: {
-    del(num,index){
-      this.priseInfo[num].splice(index,1)
+    del(num, index) {
+      this.priseInfo[num].splice(index, 1);
+      this.setLocalStorage();
     },
     start() {
       this.startShow = !this.startShow
@@ -115,7 +116,13 @@ export default {
       if (data == 1) {
         this.priseInfo[this.index - 1].push(this.info)
         this.showBtnOrNot();
+        this.setLocalStorage()
       }
+    },
+    setLocalStorage() {
+      // 设置本地缓存
+      let priseInfo = JSON.stringify(this.priseInfo);
+      window.localStorage.setItem("priseInfo", priseInfo);
     },
     choice(e) {
       this.index = e.target.getAttribute("data-id");
@@ -178,6 +185,8 @@ export default {
     }
   },
   created() {
+    // 读取缓存中的数据
+    this.priseInfo = JSON.parse(window.localStorage.getItem("priseInfo"))
     this._getMeeting()
   },
   components: {
