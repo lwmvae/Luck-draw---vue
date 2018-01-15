@@ -2,7 +2,7 @@
   width: 1365px;
   margin: 0 auto;
   height: 100%;
-  background-color: #dfdfdf;
+  background: url('../../assets/img/bgimg.png') no-repeat;
 }
 .con {
   display: flex;

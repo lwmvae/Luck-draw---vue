@@ -177,9 +177,6 @@ export default {
       })
     }
   },
-  watch: {
-
-  },
   created() {
     this._getMeeting()
   },
